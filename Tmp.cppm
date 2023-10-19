@@ -4,7 +4,6 @@
 *******************************************************************************/
 
 module ;
-#include <QPushButton>
 export module Tmp;
 
 export void Func() {
