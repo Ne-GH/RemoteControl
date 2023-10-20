@@ -1,12 +1,22 @@
+#include "MainWindow.h"
 #include <QApplication>
-#include <QPushButton>
-import Tmp;
+
 
 int main(int argc, char *argv[]) {
-    Func();
     QApplication a(argc, argv);
-    QPushButton button("Hello world!", nullptr);
-    button.resize(200, 100);
-    button.show();
-    return QApplication::exec();
+    auto window = new MainWindow;
+    window->show();
+
+
+
+
+    QObject::connect(&a,&QApplication::aboutToQuit,[=] {
+        window->Close();
+        window->show_thread->quit();
+        window->show_thread->wait();
+        delete window->show_thread;
+        window->show_thread = nullptr;
+
+    });
+    return a.exec();
 }

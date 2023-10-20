@@ -21,6 +21,8 @@ find_package(Qt6 COMPONENTS
         Core
         Gui
         Widgets
+        Multimedia
+        MultimediaWidgets
         REQUIRED)
 add_library(CXXModules)
 target_sources(CXXModules
@@ -28,13 +30,19 @@ target_sources(CXXModules
         FILE_SET cxx_modules TYPE CXX_MODULES FILES
         Tmp.cppm
 )
-add_executable(RemoteControl main.cpp
 
+include_directories(MainWindow)
+
+add_executable(RemoteControl main.cpp
+        MainWindow/MainWindow.cpp
+        MainWindow/MainWindow.h
 )
 target_link_libraries(RemoteControl
         Qt::Core
         Qt::Gui
         Qt::Widgets
+        Qt::Multimedia
+        Qt::MultimediaWidgets
         CXXModules
 )
 
