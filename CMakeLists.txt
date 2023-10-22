@@ -31,13 +31,17 @@ target_sources(CXXModules
         Tmp.cppm
 )
 
-include_directories(MainWindow Camera)
+include_directories(MainWindow Camera CursorAndKeys)
 
 add_executable(RemoteControl main.cpp
         MainWindow/MainWindow.cpp
         MainWindow/MainWindow.h
         Camera/Camera.cpp
         Camera/Camera.h
+        CursorAndKeys/Cursor.cpp
+        CursorAndKeys/Cursor.h
+        CursorAndKeys/Keys.cpp
+        CursorAndKeys/Keys.h
 )
 target_link_libraries(RemoteControl
         Qt::Core

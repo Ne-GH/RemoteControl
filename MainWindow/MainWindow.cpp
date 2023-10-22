@@ -10,11 +10,26 @@
 
 #include "Camera.h"
 
+#include <QTimer>
+#include "Cursor.h"
 
 MainWindow::MainWindow(QWidget *prent) : QMainWindow(prent),ui(new Ui::MainWindow){
     ui->setupUi(this);
 
     auto camera = new Camera(ui->show_label);
+
+    QTimer *timer = new QTimer();
+    connect(timer,&QTimer::timeout,[=]{
+        Cursor cursor;
+        auto [x,y] = cursor.GetGlobalPos();
+        qDebug() << x << ' ' << y ;
+
+    });
+    timer->start(100);
+
+
+
+
 //    camera->Show();
 
 //    show_thread = new QThread();
