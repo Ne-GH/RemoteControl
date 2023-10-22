@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *prent) : QMainWindow(prent),ui(new Ui::MainWindo
         qDebug() << x << ' ' << y ;
 
     });
-    timer->start(100);
+    timer->start(10);
 
 
 
