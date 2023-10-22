@@ -31,11 +31,13 @@ target_sources(CXXModules
         Tmp.cppm
 )
 
-include_directories(MainWindow)
+include_directories(MainWindow Camera)
 
 add_executable(RemoteControl main.cpp
         MainWindow/MainWindow.cpp
         MainWindow/MainWindow.h
+        Camera/Camera.cpp
+        Camera/Camera.h
 )
 target_link_libraries(RemoteControl
         Qt::Core
