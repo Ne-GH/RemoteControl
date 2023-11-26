@@ -7,20 +7,20 @@
 
 #include <QCursor>
 
-Cursor::Cursor() {
+CursorListen::CursorListen() {
 
 }
 
-std::tuple<int, int> Cursor::GetGlobalPos() {
+std::tuple<int, int> CursorListen::GetGlobalPos() {
     auto pos = QCursor::pos();
     return {pos.x(),pos.y()};
 }
 
-void Cursor::SetGlobalPos(std::tuple<int, int> new_pos) {
+void CursorListen::SetGlobalPos(std::tuple<int, int> new_pos) {
     auto [x,y] = new_pos;
     QCursor::setPos(x,y);
 }
 
-Cursor::~Cursor() {
+CursorListen::~CursorListen() {
 
 }

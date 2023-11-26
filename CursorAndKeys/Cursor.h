@@ -7,12 +7,16 @@
 #pragma once
 #include <tuple>
 
-class Cursor {
+class CursorListen {
+
+    bool move = false;
+    int last_x = 0,last_y = 0;
+
 
 public:
-    Cursor();
+    CursorListen();
     std::tuple<int,int> GetGlobalPos();
     void SetGlobalPos(std::tuple<int,int>);
-    ~Cursor();
+    ~CursorListen();
 
 };

@@ -12,6 +12,7 @@
 
 #include <QTimer>
 #include "Cursor.h"
+#include "Keys.h"
 
 MainWindow::MainWindow(QWidget *prent) : QMainWindow(prent),ui(new Ui::MainWindow){
     ui->setupUi(this);
@@ -20,7 +21,7 @@ MainWindow::MainWindow(QWidget *prent) : QMainWindow(prent),ui(new Ui::MainWindo
 
     QTimer *timer = new QTimer();
     connect(timer,&QTimer::timeout,[=]{
-        Cursor cursor;
+        CursorListen cursor;
         auto [x,y] = cursor.GetGlobalPos();
         qDebug() << x << ' ' << y ;
 

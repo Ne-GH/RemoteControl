@@ -6,6 +6,12 @@
 
 #pragma once
 
-class Keys {
+#include <QCoreApplication>
+#include <QEvent>
+#include <QKeyEvent>
+#include <QDebug>
 
+class KeysListen {
+public:
 };
+
