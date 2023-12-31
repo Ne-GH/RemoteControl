@@ -1,78 +1,74 @@
-cmake_minimum_required(VERSION 3.27)
-set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API "aa1f7df0-828a-4fcd-9afc-2dc80491aca7")
-project(RemoteControl)
+cmake_minimum_required(VERSION 3.5)
 
-set(CMAKE_CXX_STANDARD 23)
+project(RemoteControl VERSION 0.1 LANGUAGES CXX)
+
+set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
 
-
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(LLVM_ENABLE_LIBCXX ON)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
-set(CXX_SCAN_FOR_MODULES ON)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
+set(PROJECT_SOURCES
+        main.cpp
+        MainWindow.cpp
+        MainWindow.h
+        MainWindow.ui
 
-find_package(Qt6 COMPONENTS
-        Core
-        Gui
-        Widgets
-        Multimedia
-        MultimediaWidgets
-        REQUIRED)
-add_library(CXXModules)
-target_sources(CXXModules
-        PUBLIC
-        FILE_SET cxx_modules TYPE CXX_MODULES FILES
-        EventListener/EventListener.cppm
+        Event.h
+        Event.cpp
+
 )
 
-include_directories(MainWindow Camera CursorAndKeys)
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(RemoteControl
+        MANUAL_FINALIZATION
+        ${PROJECT_SOURCES}
+    )
+# Define target properties for Android with Qt 6 as:
+#    set_property(TARGET RemoteControl APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
+# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
+else()
+    if(ANDROID)
+        add_library(RemoteControl SHARED
+            ${PROJECT_SOURCES}
+        )
+# Define properties for Android with Qt 5 after find_package() calls as:
+#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+    else()
+        add_executable(RemoteControl
+            ${PROJECT_SOURCES}
+        )
+    endif()
+endif()
 
-add_executable(RemoteControl main.cpp
-        MainWindow/MainWindow.cpp
-        MainWindow/MainWindow.h
-        Camera/Camera.cpp
-        Camera/Camera.h
-        CursorAndKeys/Cursor.cpp
-        CursorAndKeys/Cursor.h
-        CursorAndKeys/Keys.cpp
-        CursorAndKeys/Keys.h
+target_link_libraries(RemoteControl PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+
+# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
+# If you are developing for iOS or macOS you should consider setting an
+# explicit, fixed bundle identifier manually though.
+if(${QT_VERSION} VERSION_LESS 6.1.0)
+  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.RemoteControl)
+endif()
+set_target_properties(RemoteControl PROPERTIES
+    ${BUNDLE_ID_OPTION}
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
 )
-set(X11INC /usr/X11R6/include)
-set(FREETYPEINC /usr/include/freetype2)
-# 设置编译选项
-target_include_directories(${PROJECT_NAME} PRIVATE ${X11INC} ${FREETYPEINC})
 
-#set(X11LIB /usr/X11R6/lib)
-set(X11LIB)
-#set(X11INC /usr/X11R6/include)
-set(X11INC)
-set(FREETYPELIBS -lfontconfig -lXft -lXtst)
-# 设置链接库
-
-
-target_link_libraries(RemoteControl
-        Qt::Core
-        Qt::Gui
-        Qt::Widgets
-        Qt::Multimedia
-        Qt::MultimediaWidgets
-        ${X11LIB} X11 ${XINERAMALIBS} ${FREETYPELIBS} Xrender
-        CXXModules
+include(GNUInstallDirs)
+install(TARGETS RemoteControl
+    BUNDLE DESTINATION .
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-
-
-
-
-
-
-
-
-
-
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_finalize_executable(RemoteControl)
+endif()
