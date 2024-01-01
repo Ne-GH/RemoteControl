@@ -20,20 +20,19 @@ public:
 };
 
 struct CursorEvent {
-    int key;
-    explicit CursorEvent(int arg);
+    int key{};
+    int x,y;
+    CursorEvent();
 };
 struct KeyEvent {
     int key;
-    explicit KeyEvent(int arg);
+    KeyEvent();
 };
 
 struct Event {
     ScreenShot screen_shot;
     CursorEvent cursor_event;
     KeyEvent key_event;
+    Event() = default;
 };
 
-struct EventListen {
-    EventListen();
-};
