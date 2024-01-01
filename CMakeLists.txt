@@ -27,11 +27,11 @@ add_executable(RemoteControl main.cpp
         Event.h
         Event.cpp
 
-        Control/Control.h
-        Control/Control.cpp
+        Client/Control/Control.h
+        Client/Control/Control.cpp
 
-        Controlled/Controlled.h
-        Controlled/Controlled.cpp
+        Client/Controlled/Controlled.h
+        Client/Controlled/Controlled.cpp
 
 )
 target_link_libraries(RemoteControl

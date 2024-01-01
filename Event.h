@@ -6,9 +6,9 @@
 #pragma once
 
 #include <QThread>
-#include <QScreen>
+#include <QLabel>
 #include <QPixmap>
-#include <QGuiApplication>
+#include <bitset>
 
 /*******************************************************************************
  * 构造函数即获取屏幕截图，并保存在pixmap成员中
@@ -19,20 +19,27 @@ public:
     ScreenShot();
 };
 
-struct CursorEvent {
+struct CursorState {
     int key{};
     int x,y;
-    CursorEvent();
+    CursorState();
 };
-struct KeyEvent {
-    int key;
-    KeyEvent();
-};
-
-struct Event {
-    ScreenShot screen_shot;
-    CursorEvent cursor_event;
-    KeyEvent key_event;
-    Event() = default;
+struct KeysState {
+    std::bitset<255> keys_state;
+    KeysState();
 };
 
+
+struct ListenEvent : QThread {
+    bool is_running = false;
+    KeysState keys_state;
+public:
+    ListenEvent();
+    void run() override;
+};
+struct Display : QThread {
+    QLabel* display_lab = nullptr;
+public:
+    Display(QLabel *);
+    void run() override;
+};

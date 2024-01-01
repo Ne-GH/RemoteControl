@@ -16,11 +16,13 @@ int main(int argc, char *argv[]) {
 
     QTimer timer;
     QObject::connect(&timer,&QTimer::timeout,[&]{
-        CursorEvent cursor;
-        w.statusBar()->showMessage(std::to_string(cursor.x).c_str());
+        CursorState cursor_state;
+        w.statusBar()->showMessage((std::to_string(cursor_state.x) + " , " + std::to_string(cursor_state.y)).c_str());
     });
     timer.start(100);
 
+    ListenEvent le;
+    le.start();
 
 
     return QApplication::exec();
