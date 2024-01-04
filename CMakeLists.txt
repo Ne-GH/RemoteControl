@@ -19,7 +19,7 @@ find_package(Qt6 COMPONENTS
         Gui
         Widgets
         REQUIRED)
-add_executable(RemoteControl main.cpp
+set(src 
         MainWindow.ui
         MainWindow.h
         MainWindow.cpp
@@ -32,9 +32,19 @@ add_executable(RemoteControl main.cpp
 
         Client/Controlled/Controlled.h
         Client/Controlled/Controlled.cpp
-
 )
-target_link_libraries(RemoteControl
+add_executable(control control_main.cpp
+    ${src}
+)
+add_executable(controlled controlled_main.cpp
+    ${src}
+)
+target_link_libraries(control
+        Qt::Core
+        Qt::Gui
+        Qt::Widgets
+)
+target_link_libraries(controlled
         Qt::Core
         Qt::Gui
         Qt::Widgets

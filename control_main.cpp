@@ -10,6 +10,7 @@
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
     MainWindow w;
+    w.setWindowTitle("控制端");
     w.show();
     // 开线程，监听key
     // 并做其他处理
