@@ -24,21 +24,23 @@ struct CursorState {
     int x,y;
     CursorState();
 };
-struct KeysState {
+struct OptionalState {
     std::bitset<255> keys_state;
-    KeysState();
+    int cursor_x, cursor_y;
+    OptionalState();
 };
 
 
 struct ListenEvent : QThread {
     bool is_running = false;
-    KeysState keys_state;
+    OptionalState keys_state;
 public:
     ListenEvent();
     void run() override;
 };
 struct Display : QThread {
     QLabel* display_lab = nullptr;
+    bool is_running = false;
 public:
     Display(QLabel *);
     void run() override;

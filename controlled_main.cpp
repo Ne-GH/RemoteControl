@@ -9,8 +9,8 @@
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
-    MainWindow w;
-    w.setWindowTitle("被控制端");
+    MainWindow w(UserType::CONTROLLED);
+    w.setWindowTitle("beikongzhi");
     w.show();
     // 开线程，监听key
     // 并做其他处理
@@ -22,8 +22,6 @@ int main(int argc, char *argv[]) {
     });
     timer.start(100);
 
-    ListenEvent le;
-    le.start();
 
 
     return QApplication::exec();

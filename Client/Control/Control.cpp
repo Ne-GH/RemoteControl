@@ -5,9 +5,13 @@
 
 #include "Control.h"
 
+
+
 Control::Control() {
     // 开个线程
     // while(true)  接收屏幕信息并显示
+    auto display = new Display(nullptr);
+    display->start();
 
     // 开个线程
     // while(true)  监听按键和鼠标信息

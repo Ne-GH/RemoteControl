@@ -9,6 +9,7 @@
 #include <QScreen>
 #include <QCursor>
 #include <iostream>
+#include <QtNetWork>
 
 ScreenShot::ScreenShot() {
     auto screen = QGuiApplication::primaryScreen();
@@ -21,7 +22,7 @@ CursorState::CursorState() {
     y = pos.y();
 }
 
-KeysState::KeysState() {
+OptionalState::OptionalState() {
     keys_state.reset();
 }
 
@@ -36,10 +37,8 @@ ListenEvent::ListenEvent() {
 
 #if WIN32
 #include <Windows.h>
-void GetKeysState(KeysState &keys_state) {
-#define GET_KEY_STATE(key) keys_state.keys_state[key] = GetAsyncKeyState(key) & 0x8000
-    keys_state.keys_state.reset();
-
+void GetKeysState(OptionalState &optional_state) {
+#define GET_KEY_STATE(key) optional_state.keys_state[key] = GetAsyncKeyState(key) & 0x8000
 
     //keys_state['A'] = GetKeyState('A');
     GET_KEY_STATE('A');
@@ -79,11 +78,36 @@ void ListenEvent::run() {
 
 }
 
-Display::Display(QLabel *arg_display_lab) : display_lab(arg_display_lab) {
 
+
+Display::Display(QLabel* arg_display_lab) : display_lab(arg_display_lab) {
+    auto tcp_server = new QTcpServer();
+    tcp_server->listen(QHostAddress::Any, 8888);
+
+    QObject::connect(tcp_server, &QTcpServer::newConnection, [=] {
+        auto socket = tcp_server->nextPendingConnection();
+
+        socket->write("hello");
+
+        QObject::connect(socket, &QTcpSocket::readyRead, [=] {
+            std::cout << "there is Server, get";
+            QByteArray data = socket->readAll();
+            std::cout << data.data() << std::endl;
+
+		});
+
+
+	});
 }
 
 void Display::run() {
+    is_running = true;
+
+
+
+
+    //while (is_running) {
+
+    //}
 
 }
-

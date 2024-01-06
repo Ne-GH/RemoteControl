@@ -14,11 +14,13 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif ()
 
 include_directories(.)
-find_package(Qt6 COMPONENTS
+find_package(Qt5 COMPONENTS
         Core
         Gui
         Widgets
+        Network
         REQUIRED)
+
 set(src 
         MainWindow.ui
         MainWindow.h
@@ -40,12 +42,14 @@ add_executable(controlled controlled_main.cpp
     ${src}
 )
 target_link_libraries(control
-        Qt::Core
-        Qt::Gui
-        Qt::Widgets
+        Qt5::Core
+        Qt5::Gui
+        Qt5::Widgets
+        Qt5::Network
 )
 target_link_libraries(controlled
-        Qt::Core
-        Qt::Gui
-        Qt::Widgets
+        Qt5::Core
+        Qt5::Gui
+        Qt5::Widgets
+        Qt5::Network
 )
