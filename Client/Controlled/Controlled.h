@@ -19,6 +19,7 @@ public:
 
 class SendScreenShot : public QThread {
     bool is_running = false;
+    QTcpSocket* socket = nullptr;
 public:
     SendScreenShot();
     void run() override;

@@ -15,19 +15,27 @@ MainWindow::MainWindow(UserType user_type,QWidget *parent)
 {
     ui->setupUi(this);
 
+    auto show_lab = new QLabel(this);
+    show_lab->resize(size());
+
 
 
     // ¿ØÖÆ¶Ë
     if (user_type == UserType::CONTROL) {
-        auto p = new Control();
+        auto control = new Control(show_lab);
+        ScreenShot ss;
+        show_lab->setPixmap(ss.pixmap.scaled(show_lab->size(),Qt::KeepAspectRatio));
+        QObject::connect(control, &Control::display, [=](QPixmap pixmap) {
+            show_lab->setPixmap(pixmap);
+		});
+
+
     }
     // ±»¿ØÖÆ¶Ë
     else if (user_type == UserType::CONTROLLED) {
         auto p = new Controlled();
     }
 
-    auto show_lab = new QLabel(this);
-    show_lab->resize(size());
 
 //    Event event;
 //

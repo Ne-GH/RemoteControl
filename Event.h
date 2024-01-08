@@ -19,28 +19,30 @@ public:
     ScreenShot();
 };
 
-struct CursorState {
-    int key{};
-    int x,y;
-    CursorState();
-};
-struct OptionalState {
-    std::bitset<255> keys_state;
-    int cursor_x, cursor_y;
-    OptionalState();
+struct EventState {
+    std::bitset<255> keys_state{};
+    int cursor_x{}, cursor_y{};
+    EventState();
 };
 
 
 struct ListenEvent : QThread {
     bool is_running = false;
-    OptionalState keys_state;
+    EventState keys_state;
 public:
     ListenEvent();
     void run() override;
 };
 struct Display : QThread {
+    Q_OBJECT
+
+private:
     QLabel* display_lab = nullptr;
     bool is_running = false;
+
+signals:
+    void display(QPixmap pixmap);
+
 public:
     Display(QLabel *);
     void run() override;

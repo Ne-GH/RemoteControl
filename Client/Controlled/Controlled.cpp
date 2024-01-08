@@ -6,15 +6,16 @@
 #include "Controlled.h"
 #include <QThread>
 #include <iostream>
+#include "Event.h"
 
 SendScreenShot::SendScreenShot() {
-    auto tcp_socket = new QTcpSocket();
-    tcp_socket->connectToHost("127.0.0.1", 8888);
+    socket = new QTcpSocket();
+    socket->connectToHost("127.0.0.1", 8888);
 
-    tcp_socket->write("message from client");
-    QObject::connect(tcp_socket, &QTcpSocket::readyRead, [=] {
+    // socket->write("message from client");
+    QObject::connect(socket, &QTcpSocket::readyRead, [=] {
         std::cout << "client get";
-        auto data = tcp_socket->readAll();
+        auto data = socket->readAll();
         std::cout << data.data() << std::endl;
 	});
 }
@@ -23,14 +24,31 @@ void SendScreenShot::run() {
     is_running = true;
 
 
+    while (socket->state() != QAbstractSocket::ConnectedState)
+        ;   //  尚未连接成功,等待连接
+
+    while (is_running) {
+
+
+        QByteArray block;
+        QDataStream out(&block, QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_4_6);
 
 
 
+        out << (qint64) 0;
+        out << tr("hello , this is client send message");
+        out.device()->seek(0);
+        qint64 total = block.size() - sizeof(qint64);
+        out << total;
+        socket->write(block);
+        std::cout << total << std::endl;
 
+        socket->flush();
 
-    //while (is_running) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    //}
+    }
 
 }
 

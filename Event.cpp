@@ -16,14 +16,12 @@ ScreenShot::ScreenShot() {
     pixmap = screen->grabWindow(0);
 }
 
-CursorState::CursorState() {
+EventState::EventState() {
     auto pos = QCursor::pos();
-    x = pos.x();
-    y = pos.y();
-}
-
-OptionalState::OptionalState() {
+    cursor_x = pos.x();
+    cursor_y = pos.y();
     keys_state.reset();
+
 }
 
 // 获取鼠标位置和按键
@@ -37,8 +35,8 @@ ListenEvent::ListenEvent() {
 
 #if WIN32
 #include <Windows.h>
-void GetKeysState(OptionalState &optional_state) {
-#define GET_KEY_STATE(key) optional_state.keys_state[key] = GetAsyncKeyState(key) & 0x8000
+void GetKeysState(EventState &event_state) {
+#define GET_KEY_STATE(key) event_state.keys_state[key] = GetAsyncKeyState(key) & 0x8000
 
     //keys_state['A'] = GetKeyState('A');
     GET_KEY_STATE('A');
@@ -81,19 +79,38 @@ void ListenEvent::run() {
 
 
 Display::Display(QLabel* arg_display_lab) : display_lab(arg_display_lab) {
-    auto tcp_server = new QTcpServer();
+    auto tcp_server = new QTcpServer(this);
     tcp_server->listen(QHostAddress::Any, 8888);
 
     QObject::connect(tcp_server, &QTcpServer::newConnection, [=] {
+        
         auto socket = tcp_server->nextPendingConnection();
-
-        socket->write("hello");
+        std::cout << "new connect" << std::endl;
 
         QObject::connect(socket, &QTcpSocket::readyRead, [=] {
-            std::cout << "there is Server, get";
-            QByteArray data = socket->readAll();
-            std::cout << data.data() << std::endl;
+            std::cout << "have new message :";
+            std::cout.flush();
+            QDataStream in(socket);
+            in.setVersion(QDataStream::Qt_4_6);
+            static qint64 block_size = 0;
+            std::cout << block_size << std::endl;
+            if (block_size == 0) //如果是刚开始接收数据
+            {
+                //判断接收的数据是否有两字节，也就是文件的大小信息
+                //如果有则保存到blockSize变量中，没有则返回，继续接收数据
+                if (socket->bytesAvailable() < (int)sizeof(quint16)) 
+                    return;
 
+                in >> block_size;
+				std::cout << block_size << std::endl;
+            }
+            if (socket->bytesAvailable() < block_size) return;
+            //如果没有得到全部的数据，则返回，继续接收数据
+            QString message;
+            in >> message;
+            std::cout << "block is : " << block_size 
+                    << " , message is : " << message.toStdString() 
+                    << std::endl;
 		});
 
 
