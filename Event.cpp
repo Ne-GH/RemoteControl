@@ -88,29 +88,25 @@ Display::Display(QLabel* arg_display_lab) : display_lab(arg_display_lab) {
         std::cout << "new connect" << std::endl;
 
         QObject::connect(socket, &QTcpSocket::readyRead, [=] {
-            std::cout << "have new message :";
-            std::cout.flush();
             QDataStream in(socket);
             in.setVersion(QDataStream::Qt_4_6);
             static qint64 block_size = 0;
             std::cout << block_size << std::endl;
-            if (block_size == 0) //如果是刚开始接收数据
-            {
-                //判断接收的数据是否有两字节，也就是文件的大小信息
-                //如果有则保存到blockSize变量中，没有则返回，继续接收数据
-                if (socket->bytesAvailable() < (int)sizeof(quint16)) 
+            if (block_size == 0) {
+                if (socket->bytesAvailable() < (int)sizeof(quint64)) 
                     return;
 
                 in >> block_size;
 				std::cout << block_size << std::endl;
             }
-            if (socket->bytesAvailable() < block_size) return;
+            if (socket->bytesAvailable() < block_size) 
+                return;
             //如果没有得到全部的数据，则返回，继续接收数据
-            QString message;
-            in >> message;
-            std::cout << "block is : " << block_size 
-                    << " , message is : " << message.toStdString() 
-                    << std::endl;
+			QPixmap pixmap;
+			in >> pixmap;
+            block_size = 0;
+			display_lab->setPixmap(pixmap.scaled(display_lab->size(), Qt::KeepAspectRatio));
+
 		});
 
 

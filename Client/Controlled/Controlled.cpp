@@ -28,8 +28,7 @@ void SendScreenShot::run() {
         ;   //  尚未连接成功,等待连接
 
     while (is_running) {
-
-
+        ScreenShot ss;
         QByteArray block;
         QDataStream out(&block, QIODevice::WriteOnly);
         out.setVersion(QDataStream::Qt_4_6);
@@ -37,7 +36,7 @@ void SendScreenShot::run() {
 
 
         out << (qint64) 0;
-        out << tr("hello , this is client send message");
+        out << ss.pixmap;
         out.device()->seek(0);
         qint64 total = block.size() - sizeof(qint64);
         out << total;
