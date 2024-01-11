@@ -9,7 +9,7 @@
 #include <QScreen>
 #include <QCursor>
 #include <iostream>
-#include <QtNetWork>
+#include <QtNetwork>
 
 ScreenShot::ScreenShot() {
     auto screen = QGuiApplication::primaryScreen();
@@ -49,7 +49,7 @@ void GetKeysState(EventState &event_state) {
 #undef GET_KEY_STATE
 }
 #else
-void GetKeysState(KeysState& keys_state) {
+void GetKeysState(EventState &event_state) {
 
 }
 
@@ -65,8 +65,8 @@ void ListenEvent::run() {
         COUT('B');
         COUT('C');
         COUT('D');
-        COUT(VK_LBUTTON);
-        COUT(VK_RBUTTON);
+//        COUT(VK_LBUTTON);
+//        COUT(VK_RBUTTON);
 
         std::endl(std::cout);
 
