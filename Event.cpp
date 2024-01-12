@@ -79,48 +79,42 @@ void ListenEvent::run() {
 
 
 Display::Display(QLabel* arg_display_lab) : display_lab(arg_display_lab) {
-    auto tcp_server = new QTcpServer(this);
-    tcp_server->listen(QHostAddress::Any, 8888);
+    server = new QTcpServer(this);
+    server->listen(QHostAddress::Any, 8888);
 
-    QObject::connect(tcp_server, &QTcpServer::newConnection, [=] {
-        
-        auto socket = tcp_server->nextPendingConnection();
-        std::cout << "new connect" << std::endl;
-
-        QObject::connect(socket, &QTcpSocket::readyRead, [=] {
-            QDataStream in(socket);
-            in.setVersion(QDataStream::Qt_4_6);
-            static qint64 block_size = 0;
-            std::cout << block_size << std::endl;
-            if (block_size == 0) {
-                if (socket->bytesAvailable() < (int)sizeof(quint64)) 
-                    return;
-
-                in >> block_size;
-				std::cout << block_size << std::endl;
-            }
-            if (socket->bytesAvailable() < block_size) 
-                return;
-            //如果没有得到全部的数据，则返回，继续接收数据
-			QPixmap pixmap;
-			in >> pixmap;
-            block_size = 0;
-			display_lab->setPixmap(pixmap.scaled(display_lab->size(), Qt::KeepAspectRatio));
-
-		});
-
-
+    QObject::connect(server, &QTcpServer::newConnection, [&] {
+        socket = server->nextPendingConnection();
 	});
 }
 
 void Display::run() {
     is_running = true;
 
+    while (!socket)
+        ;
+
+    QDataStream in(socket);
+    in.setVersion(QDataStream::Qt_4_6);
+    qint64 block_size = 0;
 
 
+    while (is_running) {
+        if (block_size == 0) {
+            if (socket->bytesAvailable() < sizeof(qint64))
+                continue;
 
-    //while (is_running) {
+            in >> block_size;
+            std::cout << block_size << std::endl;
+        }
+        if (socket->bytesAvailable() < block_size)
+            continue;
 
-    //}
+
+        QByteArray data;
+        data = socket->read(block_size);
+        QPixmap pixmap(data);
+        block_size = 0;
+        display_lab->setPixmap(pixmap.scaled(display_lab->size(), Qt::KeepAspectRatio));
+    }
 
 }

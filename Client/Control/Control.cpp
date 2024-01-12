@@ -12,12 +12,6 @@ Control::Control(QLabel *lab) {
     // while(true)  接收屏幕信息并显示
     auto dp = new Display(lab);
     dp->start();
-
-    QObject::connect(dp, &Display::display, [=](QPixmap pixmap) {
-        emit display(pixmap);
-	});
-
-
     // 开个线程
     // while(true)  监听按键和鼠标信息
         // 检查当前有无鼠标信息

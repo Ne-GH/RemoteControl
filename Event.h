@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QPixmap>
 #include <bitset>
+#include <QtNetwork>
 
 /*******************************************************************************
  * 构造函数即获取屏幕截图，并保存在pixmap成员中
@@ -39,6 +40,8 @@ struct Display : QThread {
 private:
     QLabel* display_lab = nullptr;
     bool is_running = false;
+    QTcpServer *server = nullptr;
+    QTcpSocket *socket = nullptr;
 
 signals:
     void display(QPixmap pixmap);

@@ -24,11 +24,6 @@ MainWindow::MainWindow(UserType user_type,QWidget *parent)
         auto control = new Control(show_lab);
         ScreenShot ss;
         show_lab->setPixmap(ss.pixmap.scaled(show_lab->size(),Qt::KeepAspectRatio));
-        QObject::connect(control, &Control::display, [=](QPixmap pixmap) {
-            show_lab->setPixmap(pixmap);
-		});
-
-
     }
 
     // 被控制端

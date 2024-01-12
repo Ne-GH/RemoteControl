@@ -11,13 +11,11 @@
 SendScreenShot::SendScreenShot() {
     socket = new QTcpSocket();
     socket->connectToHost("127.0.0.1", 8888);
-
-    // socket->write("message from client");
-    QObject::connect(socket, &QTcpSocket::readyRead, [=] {
-        std::cout << "client get";
-        auto data = socket->readAll();
-        std::cout << data.data() << std::endl;
-	});
+//    QObject::connect(socket, &QTcpSocket::readyRead, [=] {
+//        std::cout << "client get";
+//        auto data = socket->readAll();
+//        std::cout << data.data() << std::endl;
+//	});
 }
 
 void SendScreenShot::run() {
@@ -33,15 +31,12 @@ void SendScreenShot::run() {
         QDataStream out(&block, QIODevice::WriteOnly);
         out.setVersion(QDataStream::Qt_4_6);
 
-
-
         out << (qint64) 0;
         out << ss.pixmap;
         out.device()->seek(0);
         qint64 total = block.size() - sizeof(qint64);
         out << total;
         socket->write(block);
-        std::cout << total << std::endl;
 
         socket->flush();
 
