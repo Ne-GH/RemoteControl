@@ -1,4 +1,4 @@
-#include "MainWindow.h"
+﻿#include "MainWindow.h"
 
 #include <QThread>
 #include <QApplication>
@@ -7,11 +7,10 @@
 #include <QTimer>
 #include <iostream>
 #include "Event.h"
-
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
     MainWindow w(UserType::CONTROLLED);
-    w.setWindowTitle("beikongzhi");
+    w.setWindowTitle("被控制");
     w.show();
     std::cout << "main : " << QThread::currentThreadId() << std::endl;
     return QApplication::exec();

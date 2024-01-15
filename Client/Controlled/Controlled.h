@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * Author : yongheng
  * Data   : 2024/01/01
 *******************************************************************************/
@@ -17,14 +17,4 @@ public:
 
 };
 
-class SendScreenShot : public QObject {
-    Q_OBJECT
-public:
-    QTcpSocket* socket = nullptr;
-    SendScreenShot();
-    void SendMessage();
 
-signals:
-    void SendMessageSig();
-
-};

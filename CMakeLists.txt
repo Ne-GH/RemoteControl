@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+﻿cmake_minimum_required(VERSION 3.5)
 
 project(RemoteControl VERSION 0.1 LANGUAGES CXX)
 
@@ -10,7 +10,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    # Windows-specific code
+       add_definitions(/utf-8)
 endif ()
 
 include_directories(.)

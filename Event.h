@@ -50,3 +50,15 @@ public:
     Display(QLabel *);
     void run() override;
 };
+
+class SendScreenShot : public QObject {
+    Q_OBJECT
+public:
+    QTcpSocket* socket = nullptr;
+    SendScreenShot();
+    void Send();
+
+signals:
+    void SendMessageSig();
+
+};
