@@ -76,7 +76,12 @@ void ListenEvent::run() {
 
 }
 
-
+static void Print(char* str) {
+    for (int i = 0; i < 20; ++i) {
+        std::cout << (int)(unsigned char)str[i] << " ";
+    }
+    std::cout << std::endl;
+}
 
 Display::Display(QLabel* arg_display_lab) : display_lab(arg_display_lab) {
     server = new QTcpServer(this);
@@ -84,37 +89,100 @@ Display::Display(QLabel* arg_display_lab) : display_lab(arg_display_lab) {
 
     QObject::connect(server, &QTcpServer::newConnection, [&] {
         socket = server->nextPendingConnection();
+        std::cout << "new connect" << std::endl;
+        QObject::connect(socket, &QTcpSocket::readyRead, [&] {
+            static long long total_size = 0;
+            static QByteArray arr;
+            QDataStream in(socket);
+            in.setVersion(QDataStream::Qt_4_6);
+            in.setByteOrder(QDataStream::BigEndian);
+
+
+            if (total_size == 0) {
+                if (socket->bytesAvailable() < sizeof(long long))
+                    return;
+                in >> total_size;
+                std::cout << "total : " << total_size << std::endl;
+            }
+
+            if (socket->bytesAvailable() < total_size)
+                return;
+
+            arr.clear();
+            arr = socket->read(total_size);
+            // 处理arr
+            if (arr.size() == total_size) {
+                std::cout << "size == total" << std::endl;
+                
+                QByteArray image_arr = QByteArray::fromBase64(arr.data()+4);
+                QImage image;
+                if (!image.loadFromData(image_arr, "jpg")) {
+                    std::cout << "error load" << std::endl;
+                }
+                else {
+                    QPixmap pixmap = QPixmap::fromImage(image);
+                    display_lab->setPixmap(pixmap.scaled(display_lab->size(), Qt::KeepAspectRatio));
+                    std::cout << "is ok" << std::endl;
+                }
+
+                arr.clear();
+                total_size = 0;
+            }
+            else {
+                std::cout << "123" << std::endl;
+            }
+
+		});
 	});
 }
+long long Reverse(long long src) {
+    long long ret = 0;
 
-void Display::run() {
-    is_running = true;
-
-    while (!socket)
-        ;
-
-    QDataStream in(socket);
-    in.setVersion(QDataStream::Qt_4_6);
-    qint64 block_size = 0;
-
-
-    while (is_running) {
-        if (block_size == 0) {
-            if (socket->bytesAvailable() < sizeof(qint64))
-                continue;
-
-            in >> block_size;
-            std::cout << block_size << std::endl;
-        }
-        if (socket->bytesAvailable() < block_size)
-            continue;
-
-
-        QByteArray data;
-        data = socket->read(block_size);
-        QPixmap pixmap(data);
-        block_size = 0;
-        display_lab->setPixmap(pixmap.scaled(display_lab->size(), Qt::KeepAspectRatio));
+    for (int i = 0; i < 8; ++i) {
+        ret <<= 8;
+        ret += src & 0xff;  //
+        src >>= 8;
     }
+    return ret;
+}
+void Display::run() {
+    //is_running = true;
+
+    //while (!socket)
+    //    ;
+
+    //QDataStream in(socket);
+    //in.setVersion(QDataStream::Qt_4_6);
+    //in.setByteOrder(QDataStream::BigEndian);
+    //long long block_size = 0;
+
+
+    //while (is_running) {
+    //    //if (block_size == 0) {
+    //    //    if (socket->bytesAvailable() < sizeof(long long))
+    //    //        continue;
+    //    //    // in >> block_size;
+    //    //    QByteArray size_arr;
+    //    //    size_arr = socket->read(sizeof(long long));
+    //    //    memcpy(&block_size, size_arr.data(), sizeof(long long));
+    //    //    block_size = Reverse(block_size);
+    //    //    std::cout << block_size << std::endl;
+    //    //}
+    //    //if (socket->bytesAvailable() < block_size)
+    //    //    continue;
+
+    //    //std::cout << "block size : " << block_size << " "
+    //    //    << "socket aviailable : " << socket->bytesAvailable() << std::endl;
+
+    //    //QByteArray data;
+    //    //data.resize(block_size);
+    //    //in.readRawData(data.data(), block_size);
+    //    //data = socket->read(block_size);
+    //    QPixmap pixmap;
+    //    in >> pixmap;
+    //    // block_size = 0;
+    //    display_lab->setPixmap(pixmap.scaled(display_lab->size(), Qt::KeepAspectRatio));
+    //    // std::this_thread::sleep_for(std::chrono::seconds{5});
+    //}
 
 }
