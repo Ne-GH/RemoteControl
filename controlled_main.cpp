@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QStatusBar>
 #include <QTimer>
+#include <iostream>
 #include "Event.h"
 
 int main(int argc, char *argv[]) {
@@ -12,5 +13,6 @@ int main(int argc, char *argv[]) {
     MainWindow w(UserType::CONTROLLED);
     w.setWindowTitle("beikongzhi");
     w.show();
+    std::cout << "main : " << QThread::currentThreadId() << std::endl;
     return QApplication::exec();
 }

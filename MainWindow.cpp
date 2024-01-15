@@ -15,7 +15,9 @@ MainWindow::MainWindow(UserType user_type,QWidget *parent)
     ui->setupUi(this);
 
     auto show_lab = new QLabel(this);
-    show_lab->resize(size());
+    setCentralWidget(show_lab);
+    show_lab->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+
 
 
 

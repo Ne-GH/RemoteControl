@@ -17,10 +17,14 @@ public:
 
 };
 
-class SendScreenShot : public QThread {
-    bool is_running = false;
-    QTcpSocket* socket = nullptr;
+class SendScreenShot : public QObject {
+    Q_OBJECT
 public:
+    QTcpSocket* socket = nullptr;
     SendScreenShot();
-    void run() override;
+    void SendMessage();
+
+signals:
+    void SendMessageSig();
+
 };
