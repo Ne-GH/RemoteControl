@@ -27,28 +27,29 @@ struct EventState {
 };
 
 
-struct ListenEvent : QThread {
-    bool is_running = false;
-    EventState keys_state;
+struct ListenEvent : public QObject {
+    Q_OBJECT
+private:
+    QTcpSocket *socket = nullptr;
 public:
     ListenEvent();
-    void run() override;
+    void LoopSendKeysState();
+signals:
+    void LoopSendKeysStateSig();
 };
-struct Display : QThread {
+
+
+
+struct Display : public QObject {
     Q_OBJECT
 
 private:
     QLabel* display_lab = nullptr;
-    bool is_running = false;
     QTcpServer *server = nullptr;
     QTcpSocket *socket = nullptr;
 
-signals:
-    void display(QPixmap pixmap);
-
 public:
     Display(QLabel *);
-    void run() override;
 };
 
 class SendScreenShot : public QObject {

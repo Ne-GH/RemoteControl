@@ -11,19 +11,13 @@ Control::Control(QLabel *lab) {
     // 开个线程
     // while(true)  接收屏幕信息并显示
     auto dp = new Display(lab);
-    dp->start();
-    // 开个线程
-    // while(true)  监听按键和鼠标信息
-        // 检查当前有无鼠标信息
-        // 检查当前有无按键信息
-        // 将获取的信息封装为event
-        // 将event序列化
-        // 发送出去
 
-    // 或者
-    // 全局的key，默认为空
-    // connect (按键信息),修改key
-    // 将key的数据和鼠标信息封装到event中
-    // 将key的数据修改为空
+    // 开个线程，检测当前按键状态并发送
+    auto listen_event = new ListenEvent();
+    auto listen_event_thread = new QThread();
+    listen_event->moveToThread(listen_event_thread);
+    QObject::connect(listen_event,&ListenEvent::LoopSendKeysStateSig,listen_event,&ListenEvent::LoopSendKeysState);
+    listen_event_thread->start();
+
 
 }

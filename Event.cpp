@@ -16,12 +16,36 @@ ScreenShot::ScreenShot() {
     pixmap = screen->grabWindow(0);
 }
 
+static void GetKeysState(std::bitset<255> &keys_state) {
+
+// 根据不同的平台定义GET_KEY_STATE接口
+#if WIN32
+    #include <Windows.h>
+#define GET_KEY_STATE(key) keys_state[key] = GetAsyncKeyState(key) & 0x8000
+#else
+#define GET_KEY_STATE(key) 1;
+    //keys_state['A'] = GetKeyState('A');
+#endif
+
+    GET_KEY_STATE('A');
+    GET_KEY_STATE('B');
+    GET_KEY_STATE('C');
+    GET_KEY_STATE('D');
+    GET_KEY_STATE('E');
+    GET_KEY_STATE(VK_LBUTTON);
+    GET_KEY_STATE(VK_RBUTTON);
+
+
+#undef GET_KEY_STATE
+}
+
+// 构造函数中就构造出了按键的状态表
 EventState::EventState() {
     auto pos = QCursor::pos();
     cursor_x = pos.x();
     cursor_y = pos.y();
     keys_state.reset();
-
+    GetKeysState(keys_state);
 }
 
 // 获取鼠标位置和按键
@@ -30,58 +54,28 @@ EventState::EventState() {
 // Event作为信号发出
 
 ListenEvent::ListenEvent() {
-
+    socket = new QTcpSocket();
+    // 建立连接
+    QObject::connect(socket,&QTcpSocket::connected,[this] {
+        emit LoopSendKeysStateSig();
+    });
 }
 
-#if WIN32
-#include <Windows.h>
-void GetKeysState(EventState &event_state) {
-#define GET_KEY_STATE(key) event_state.keys_state[key] = GetAsyncKeyState(key) & 0x8000
+void ListenEvent::LoopSendKeysState() {
 
-    //keys_state['A'] = GetKeyState('A');
-    GET_KEY_STATE('A');
-    GET_KEY_STATE('B');
-    GET_KEY_STATE('C');
-    GET_KEY_STATE('D');
-    GET_KEY_STATE('E');
-    GET_KEY_STATE(VK_LBUTTON);
-    GET_KEY_STATE(VK_RBUTTON);
-#undef GET_KEY_STATE
-}
-#else
-void GetKeysState(EventState &event_state) {
+    while (1) {
+        EventState event_state;
+        // to string
+        // send
+        // 刷新缓冲区
 
-}
-
-#endif
-
-void ListenEvent::run() {
-    is_running = true;
-#define COUT(key) std::cout << keys_state.keys_state[key] << ' ';
-
-    while(is_running) {
-        GetKeysState(keys_state);
-        COUT('A');
-        COUT('B');
-        COUT('C');
-        COUT('D');
-//        COUT(VK_LBUTTON);
-//        COUT(VK_RBUTTON);
-
-        std::endl(std::cout);
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-#undef COUT
 
 }
 
-static void Print(char* str) {
-    for (int i = 0; i < 20; ++i) {
-        std::cout << (int)(unsigned char)str[i] << " ";
-    }
-    std::cout << std::endl;
-}
+
+
+
 
 Display::Display(QLabel* arg_display_lab) : display_lab(arg_display_lab) {
     server = new QTcpServer(this);
@@ -135,58 +129,6 @@ Display::Display(QLabel* arg_display_lab) : display_lab(arg_display_lab) {
 		});
 	});
 }
-long long Reverse(long long src) {
-    long long ret = 0;
-
-    for (int i = 0; i < 8; ++i) {
-        ret <<= 8;
-        ret += src & 0xff;  //
-        src >>= 8;
-    }
-    return ret;
-}
-void Display::run() {
-    //is_running = true;
-
-    //while (!socket)
-    //    ;
-
-    //QDataStream in(socket);
-    //in.setVersion(QDataStream::Qt_4_6);
-    //in.setByteOrder(QDataStream::BigEndian);
-    //long long block_size = 0;
-
-
-    //while (is_running) {
-    //    //if (block_size == 0) {
-    //    //    if (socket->bytesAvailable() < sizeof(long long))
-    //    //        continue;
-    //    //    // in >> block_size;
-    //    //    QByteArray size_arr;
-    //    //    size_arr = socket->read(sizeof(long long));
-    //    //    memcpy(&block_size, size_arr.data(), sizeof(long long));
-    //    //    block_size = Reverse(block_size);
-    //    //    std::cout << block_size << std::endl;
-    //    //}
-    //    //if (socket->bytesAvailable() < block_size)
-    //    //    continue;
-
-    //    //std::cout << "block size : " << block_size << " "
-    //    //    << "socket aviailable : " << socket->bytesAvailable() << std::endl;
-
-    //    //QByteArray data;
-    //    //data.resize(block_size);
-    //    //in.readRawData(data.data(), block_size);
-    //    //data = socket->read(block_size);
-    //    QPixmap pixmap;
-    //    in >> pixmap;
-    //    // block_size = 0;
-    //    display_lab->setPixmap(pixmap.scaled(display_lab->size(), Qt::KeepAspectRatio));
-    //    // std::this_thread::sleep_for(std::chrono::seconds{5});
-    //}
-
-}
-
 
 void SendScreenShot::Send() {
     std::cout << QThread::currentThreadId() << std::endl;
