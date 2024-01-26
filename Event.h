@@ -38,6 +38,14 @@ signals:
     void LoopSendKeysStateSig();
 };
 
+struct SimulateEvent : public QObject {
+    Q_OBJECT
+public:
+    QTcpServer *server = nullptr;
+    QTcpSocket *socket = nullptr;
+    SimulateEvent();
+
+};
 
 
 struct Display : public QObject {

@@ -48,6 +48,8 @@ EventState::EventState() {
     GetKeysState(keys_state);
 }
 
+
+
 // 获取鼠标位置和按键
 // 获取键盘按键
 // 整合为Event
@@ -65,14 +67,26 @@ void ListenEvent::LoopSendKeysState() {
 
     while (1) {
         EventState event_state;
-        // to string
-        // send
-        // 刷新缓冲区
+        QByteArray send_arr;
+        QDataStream out(&send_arr,QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_4_6);
+        out.setByteOrder(QDataStream::BigEndian);
+        out << 0ll; // 总长度
+        out << event_state.cursor_x;
+        out << event_state.cursor_y;
+        out << event_state.keys_state.to_string().c_str();
 
+        out.device()->seek(0);
+        long long total = send_arr.size() - sizeof(long long);
+        out << total;
+
+        socket->write(send_arr);
+        socket->flush();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds {20});
     }
 
 }
-
 
 
 
