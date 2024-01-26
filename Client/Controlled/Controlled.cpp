@@ -22,10 +22,6 @@ Controlled::Controlled() {
 	std::cout << "init : " << QThread::currentThreadId() << std::endl;
     QObject::connect(send_screen_shot, &SendScreenShot::SendMessageSig,send_screen_shot,&SendScreenShot::Send);
     send_message_thread->start();
-    // send_screen_shot->Send();
-
-    // 开个线程
-    // while(true) 接收按键和鼠标信息并模拟
 
 }
 

@@ -16,15 +16,17 @@ ScreenShot::ScreenShot() {
     pixmap = screen->grabWindow(0);
 }
 
-static void GetKeysState(std::bitset<255> &keys_state) {
 
 // 根据不同的平台定义GET_KEY_STATE接口
 #if WIN32
-    #include <Windows.h>
+#include <Windows.h>
+#else
+#endif
+void GetKeysState(std::bitset<255> &keys_state) {
+
+#if WIN32
 #define GET_KEY_STATE(key) keys_state[key] = GetAsyncKeyState(key) & 0x8000
 #else
-#define GET_KEY_STATE(key) 1;
-    //keys_state['A'] = GetKeyState('A');
 #endif
 
     GET_KEY_STATE('A');
@@ -41,32 +43,27 @@ static void GetKeysState(std::bitset<255> &keys_state) {
 
 // 构造函数中就构造出了按键的状态表
 EventState::EventState() {
+    cursor_x = cursor_y = 0;
+    keys_state.reset();
+}
+void EventState::GetCurKeysEvent() {
     auto pos = QCursor::pos();
     cursor_x = pos.x();
     cursor_y = pos.y();
     keys_state.reset();
     GetKeysState(keys_state);
 }
-
-
-
-// 获取鼠标位置和按键
-// 获取键盘按键
-// 整合为Event
-// Event作为信号发出
-
-ListenEvent::ListenEvent() {
-    socket = new QTcpSocket();
-    // 建立连接
-    QObject::connect(socket,&QTcpSocket::connected,[this] {
-        emit LoopSendKeysStateSig();
-    });
+void EventState::Reset() {
+    cursor_x = cursor_y = 0;
+    keys_state.reset();
 }
 
-void ListenEvent::LoopSendKeysState() {
 
-    while (1) {
+
+
+void SendKeysState(QTcpSocket *socket) {
         EventState event_state;
+        event_state.GetCurKeysEvent();
         QByteArray send_arr;
         QDataStream out(&send_arr,QIODevice::WriteOnly);
         out.setVersion(QDataStream::Qt_4_6);
@@ -74,20 +71,17 @@ void ListenEvent::LoopSendKeysState() {
         out << 0ll; // 总长度
         out << event_state.cursor_x;
         out << event_state.cursor_y;
-        out << event_state.keys_state.to_string().c_str();
+        out << "hello";
+        // out << event_state.keys_state.to_string().c_str();
 
         out.device()->seek(0);
         long long total = send_arr.size() - sizeof(long long);
         out << total;
 
+
         socket->write(send_arr);
         socket->flush();
-
-        std::this_thread::sleep_for(std::chrono::milliseconds {20});
-    }
-
 }
-
 
 
 
@@ -105,12 +99,12 @@ Display::Display(QLabel* arg_display_lab) : display_lab(arg_display_lab) {
             in.setVersion(QDataStream::Qt_4_6);
             in.setByteOrder(QDataStream::BigEndian);
 
+            static EventState event_state;
 
             if (total_size == 0) {
                 if (socket->bytesAvailable() < sizeof(long long))
                     return;
                 in >> total_size;
-                std::cout << "total : " << total_size << std::endl;
             }
 
             if (socket->bytesAvailable() < total_size)
@@ -120,8 +114,6 @@ Display::Display(QLabel* arg_display_lab) : display_lab(arg_display_lab) {
             arr = socket->read(total_size);
             // 处理arr
             if (arr.size() == total_size) {
-                std::cout << "size == total" << std::endl;
-                
                 QByteArray image_arr = QByteArray::fromBase64(arr.data()+4);
                 QImage image;
                 if (!image.loadFromData(image_arr, "jpg")) {
@@ -130,11 +122,14 @@ Display::Display(QLabel* arg_display_lab) : display_lab(arg_display_lab) {
                 else {
                     QPixmap pixmap = QPixmap::fromImage(image);
                     display_lab->setPixmap(pixmap.scaled(display_lab->size(), Qt::KeepAspectRatio));
-                    std::cout << "is ok" << std::endl;
                 }
 
                 arr.clear();
                 total_size = 0;
+
+                // 接收完被控制端的屏幕数据之后，发送按键状态
+                SendKeysState(socket);
+                std::cout << "发送了按键状态" << std::endl;
             }
             else {
                 std::cout << "123" << std::endl;
@@ -163,8 +158,6 @@ void SendScreenShot::Send() {
         out.device()->seek(0);
         long long total = send_arr.size() - sizeof(long long);
         out << total;
-        std::cout << total << std::endl;
-        std::cout << "image total : " << total << std::endl;
         socket->write(send_arr);
 
         socket->flush();
@@ -178,5 +171,35 @@ SendScreenShot::SendScreenShot() {
     socket->connectToHost("127.0.0.1", 8888);
     connect(socket, &QTcpSocket::connected, [this] {
         emit SendMessageSig();
-        });
+
+        // 接收控制端传来的按键状态
+        // 总长度，鼠标x，y ，(QDataStream 自带的字符串长度), 字符串
+        QObject::connect(socket, &QTcpSocket::readyRead, [&] {
+            static long long total_size = 0;
+            static QByteArray arr;
+            QDataStream in(socket);
+            in.setVersion(QDataStream::Qt_4_6);
+            in.setByteOrder(QDataStream::BigEndian);
+
+            if (total_size == 0) {
+                if (socket->bytesAvailable() < sizeof(long long))
+                    return;
+                in >> total_size;
+            }
+
+            if (socket->bytesAvailable() < total_size)
+                return;
+
+            int x, y;
+            in >> x >> y;
+
+            arr.clear();
+            arr = socket->read(total_size - sizeof(int)*2);
+            std::cout << "x : " << x << " y : " << y << " " << (arr.data()+4) << std::endl;
+            // 发送真正的按键信息，并在此处接收时进行模拟
+
+            arr.clear();
+            total_size = 0;
+		});
+	});
 }
