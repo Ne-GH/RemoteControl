@@ -1,4 +1,11 @@
-﻿暂时：
+﻿```mermaid
+sequenceDiagram
+	participant 被控制端
+	participant 控制端
+```
+
+
+暂时：
 被控制端								控制端
 		-----连接对方的8888端口----->
 				（socket）
