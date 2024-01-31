@@ -201,6 +201,8 @@ void SendScreenShot::Send() {
     }
 }
 
+
+// 调用Send发送屏幕信息，并接收按键信息
 SendScreenShot::SendScreenShot() {
     socket = new QTcpSocket();
     socket->connectToHost("127.0.0.1", 8888);
@@ -208,7 +210,7 @@ SendScreenShot::SendScreenShot() {
         emit SendMessageSig();
 
         // 接收控制端传来的按键状态
-        // 总长度，鼠标x，y ，(QDataStream 自带的字符串长度), 字符串
+        // 总长度，鼠标x，y ，(QDataStream 自带的字符串长度), bitset<255>转来的字符串
         QObject::connect(socket, &QTcpSocket::readyRead, [&] {
             static long long total_size = 0;
             static QByteArray arr;
