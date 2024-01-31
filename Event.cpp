@@ -29,13 +29,49 @@ void GetKeysState(std::bitset<255> &keys_state) {
 #else
 #endif
 
+    // 左右鼠标，1-2
+    GET_KEY_STATE(VK_LBUTTON);
+    GET_KEY_STATE(VK_RBUTTON);
+
+    // 0-9, 48-57
+    GET_KEY_STATE('0');
+    GET_KEY_STATE('1');
+    GET_KEY_STATE('2');
+    GET_KEY_STATE('3');
+    GET_KEY_STATE('4');
+    GET_KEY_STATE('5');
+    GET_KEY_STATE('6');
+    GET_KEY_STATE('7');
+    GET_KEY_STATE('8');
+    GET_KEY_STATE('9');
+
+    // A-Z,65-90
     GET_KEY_STATE('A');
     GET_KEY_STATE('B');
     GET_KEY_STATE('C');
     GET_KEY_STATE('D');
     GET_KEY_STATE('E');
-    GET_KEY_STATE(VK_LBUTTON);
-    GET_KEY_STATE(VK_RBUTTON);
+    GET_KEY_STATE('F');
+    GET_KEY_STATE('G');
+    GET_KEY_STATE('H');
+    GET_KEY_STATE('I');
+    GET_KEY_STATE('J');
+    GET_KEY_STATE('K');
+    GET_KEY_STATE('L');
+    GET_KEY_STATE('M');
+    GET_KEY_STATE('N');
+    GET_KEY_STATE('O');
+    GET_KEY_STATE('P');
+    GET_KEY_STATE('Q');
+    GET_KEY_STATE('R');
+    GET_KEY_STATE('S');
+    GET_KEY_STATE('T');
+    GET_KEY_STATE('U');
+    GET_KEY_STATE('V');
+    GET_KEY_STATE('W');
+    GET_KEY_STATE('X');
+    GET_KEY_STATE('Y');
+    GET_KEY_STATE('Z');
 
 
 #undef GET_KEY_STATE
@@ -71,8 +107,7 @@ void SendKeysState(QTcpSocket *socket) {
         out << 0ll; // 总长度
         out << event_state.cursor_x;
         out << event_state.cursor_y;
-        out << "hello";
-        // out << event_state.keys_state.to_string().c_str();
+        out << event_state.keys_state.to_string().c_str();
 
         out.device()->seek(0);
         long long total = send_arr.size() - sizeof(long long);
@@ -190,13 +225,21 @@ SendScreenShot::SendScreenShot() {
             if (socket->bytesAvailable() < total_size)
                 return;
 
+            // cursor x,y
             int x, y;
             in >> x >> y;
 
             arr.clear();
             arr = socket->read(total_size - sizeof(int)*2);
-            std::cout << "x : " << x << " y : " << y << " " << (arr.data()+4) << std::endl;
-            // 发送真正的按键信息，并在此处接收时进行模拟
+            std::string keys_str(arr.data() + 4);
+
+            // 控制端的按键状态和鼠标状态
+            EventState event_state;
+            event_state.cursor_x = x;
+            event_state.cursor_y = y;
+            event_state.keys_state = std::bitset<255>(keys_str);
+
+            // 在此处接收时进行模拟
 
             arr.clear();
             total_size = 0;
