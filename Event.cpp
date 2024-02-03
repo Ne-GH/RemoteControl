@@ -22,11 +22,13 @@ ScreenShot::ScreenShot() {
 #include <Windows.h>
 #else
 #endif
+
 void GetKeysState(std::bitset<255> &keys_state) {
 
 #if WIN32
 #define GET_KEY_STATE(key) keys_state[key] = GetAsyncKeyState(key) & 0x8000
 #else
+#define GET_KEY_STATE(key) key;
 #endif
 
     // 左右鼠标，1-2
@@ -120,9 +122,9 @@ void SendKeysState(QTcpSocket *socket) {
 
 
 
-Display::Display(QLabel* arg_display_lab) : display_lab(arg_display_lab) {
+Display::Display(QLabel* arg_display_lab,QString port) : display_lab(arg_display_lab) {
     server = new QTcpServer(this);
-    server->listen(QHostAddress::Any, 8888);
+    server->listen(QHostAddress::Any, port.toInt());
 
     QObject::connect(server, &QTcpServer::newConnection, [&] {
         socket = server->nextPendingConnection();
@@ -203,9 +205,9 @@ void SendScreenShot::Send() {
 
 
 // 调用Send发送屏幕信息，并接收按键信息
-SendScreenShot::SendScreenShot() {
+SendScreenShot::SendScreenShot(QString addr,QString port) {
     socket = new QTcpSocket();
-    socket->connectToHost("127.0.0.1", 8888);
+    socket->connectToHost(addr, port.toInt());
     connect(socket, &QTcpSocket::connected, [this] {
         emit SendMessageSig();
 

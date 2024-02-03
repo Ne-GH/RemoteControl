@@ -59,14 +59,14 @@ private:
     QTcpSocket *socket = nullptr;
 
 public:
-    Display(QLabel *);
+    Display(QLabel *,QString);
 };
 
 class SendScreenShot : public QObject {
     Q_OBJECT
 public:
     QTcpSocket* socket = nullptr;
-    SendScreenShot();
+    SendScreenShot(QString,QString);
     void Send();
 
 signals:

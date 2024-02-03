@@ -1,37 +1,38 @@
-#include "MainWindow.h"
+﻿#include "MainWindow.h"
 #include "./ui_MainWindow.h"
 
 #include <QLabel>
+#include <QLineEdit>
 
 
 #include "Event.h"
 #include "Client/Control/Control.h"
 #include "Client/Controlled/Controlled.h"
 
-MainWindow::MainWindow(UserType user_type,QWidget *parent)
+MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    auto show_lab = new QLabel(this);
-    setCentralWidget(show_lab);
-    show_lab->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    QObject::connect(ui->listen, &QPushButton::clicked, [this] {
+        auto port = ui->listen_port->text();
 
+		auto show_lab = new QLabel(this);
+		setCentralWidget(show_lab);
+		show_lab->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+        auto control = new Control(show_lab,port);
+	});
 
+    QObject::connect(ui->connect, &QPushButton::clicked, [this] {   
+        auto input = ui->socket_addr->text();
+        auto list = input.split(':');
+        auto addr = list[0];
+        auto port = list[1];
+        qDebug() << addr << " " << port;
+        auto p = new Controlled(addr,port);
+	});
 
-
-    // 控制端
-    if (user_type == UserType::CONTROL) {
-        auto control = new Control(show_lab);
-        ScreenShot ss;
-        show_lab->setPixmap(ss.pixmap.scaled(show_lab->size(),Qt::KeepAspectRatio));
-    }
-
-    // 被控制端
-    else if (user_type == UserType::CONTROLLED) {
-        auto p = new Controlled();
-    }
 }
 
 MainWindow::~MainWindow() {

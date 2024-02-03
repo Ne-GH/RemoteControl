@@ -10,7 +10,7 @@
 class Control : public QObject {
     Q_OBJECT
 public:
-    Control(QLabel *);
+    Control(QLabel *,QString);
    // 发出键盘和鼠标操作之后才上传信息
 
 };

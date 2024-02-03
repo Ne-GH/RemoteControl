@@ -21,33 +21,24 @@ find_package(Qt5 COMPONENTS
         Network
         REQUIRED)
 
-set(src 
-        MainWindow.ui
-        MainWindow.h
-        MainWindow.cpp
+add_executable(RemoteControl
+		main.cpp
 
-        Event.h
-        Event.cpp
+		MainWindow.ui
+		MainWindow.h
+		MainWindow.cpp
 
-        Client/Control/Control.h
-        Client/Control/Control.cpp
+		Event.h
+		Event.cpp
 
-        Client/Controlled/Controlled.h
-        Client/Controlled/Controlled.cpp
+		Client/Control/Control.h
+		Client/Control/Control.cpp
+
+		Client/Controlled/Controlled.h
+		Client/Controlled/Controlled.cpp
 )
-add_executable(control control_main.cpp
-    ${src}
-)
-add_executable(controlled controlled_main.cpp
-    ${src}
-)
-target_link_libraries(control
-        Qt5::Core
-        Qt5::Gui
-        Qt5::Widgets
-        Qt5::Network
-)
-target_link_libraries(controlled
+
+target_link_libraries(RemoteControl
         Qt5::Core
         Qt5::Gui
         Qt5::Widgets

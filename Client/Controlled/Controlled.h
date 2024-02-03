@@ -12,9 +12,7 @@
 // 被控制端，上传自己的屏幕信息或其他信息，接收控制端传来的键盘和鼠标操作，并进行模拟
 class Controlled {
 public:
-    Controlled();
-    
-
+    Controlled(QString,QString);
 };
 
 

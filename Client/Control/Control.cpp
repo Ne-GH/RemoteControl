@@ -7,9 +7,9 @@
 
 
 
-Control::Control(QLabel *lab) {
+Control::Control(QLabel *lab,QString port) {
     // 开个线程
     // while(true)  接收屏幕信息并显示
-    auto dp = new Display(lab);
+    auto dp = new Display(lab,port);
 
 }

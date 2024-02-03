@@ -5,13 +5,11 @@
 #include <QLabel>
 #include <QStatusBar>
 #include <QTimer>
-#include <iostream>
 #include "Event.h"
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
-    MainWindow w(UserType::CONTROLLED);
-    w.setWindowTitle("被控制");
+    MainWindow w;
+    w.setWindowTitle("Remote Control");
     w.show();
-    std::cout << "main : " << QThread::currentThreadId() << std::endl;
     return QApplication::exec();
 }
