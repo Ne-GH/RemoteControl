@@ -29,6 +29,8 @@ void GetKeysState(std::bitset<255> &keys_state) {
 #define GET_KEY_STATE(key) keys_state[key] = GetAsyncKeyState(key) & 0x8000
 #else
 #define GET_KEY_STATE(key) key;
+#define VK_LBUTTON 1
+#define VK_RBUTTON 2
 #endif
 
     // 左右鼠标，1-2
