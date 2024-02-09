@@ -6,8 +6,6 @@
 
 
 #include "Event.h"
-#include "Client/Control/Control.h"
-#include "Client/Controlled/Controlled.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)

@@ -30,12 +30,6 @@ add_executable(RemoteControl
 
 		Event.h
 		Event.cpp
-
-		Client/Control/Control.h
-		Client/Control/Control.cpp
-
-		Client/Controlled/Controlled.h
-		Client/Controlled/Controlled.cpp
 )
 
 target_link_libraries(RemoteControl
