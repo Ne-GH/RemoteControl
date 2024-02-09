@@ -11,6 +11,7 @@
 #include <iostream>
 #include <QtNetwork>
 
+#include <QWheelEvent>
 ScreenShot::ScreenShot() {
     auto screen = QGuiApplication::primaryScreen();
     pixmap = screen->grabWindow(0);
@@ -80,7 +81,47 @@ void GetKeysState(std::bitset<255> &keys_state) {
 
 #undef GET_KEY_STATE
 }
+void SimulateKeys(std::bitset<255>& keys_state) {
+#ifdef _WIN32
+#define SIMULATE_KEY(key) if (keys_state[key] != false)  {\
+								keybd_event(key, 0, 0, 0);\
+								keybd_event(key, 0, KEYEVENTF_KEYUP, 0);\
+						  }
+#else
+#endif // _WIN32
 
+    SIMULATE_KEY(VK_LBUTTON);
+    SIMULATE_KEY(VK_RBUTTON);
+
+    SIMULATE_KEY('A');
+    SIMULATE_KEY('B');
+    SIMULATE_KEY('C');
+    SIMULATE_KEY('D');
+    SIMULATE_KEY('E');
+    SIMULATE_KEY('F');
+    SIMULATE_KEY('G');
+    SIMULATE_KEY('H');
+    SIMULATE_KEY('I');
+    SIMULATE_KEY('G');
+    SIMULATE_KEY('K');
+    SIMULATE_KEY('L');
+    SIMULATE_KEY('M');
+    SIMULATE_KEY('N');
+    SIMULATE_KEY('O');
+    SIMULATE_KEY('P');
+    SIMULATE_KEY('Q');
+    SIMULATE_KEY('R');
+    SIMULATE_KEY('S');
+    SIMULATE_KEY('T');
+    SIMULATE_KEY('U');
+    SIMULATE_KEY('V');
+    SIMULATE_KEY('W');
+    SIMULATE_KEY('X');
+    SIMULATE_KEY('Y');
+    SIMULATE_KEY('Z');
+    
+
+}
 // 构造函数中就构造出了按键的状态表
 EventState::EventState() {
     cursor_x = cursor_y = 0;
@@ -101,6 +142,10 @@ void EventState::Reset() {
 
 
 
+/*
+    按键信息发送：
+    cursor_x,cursor_y,按键映射
+*/ 
 void SendKeysState(QTcpSocket *socket) {
         EventState event_state;
         event_state.GetCurKeysEvent();
@@ -206,6 +251,7 @@ void SendScreenShot::Send() {
 }
 
 
+
 // 调用Send发送屏幕信息，并接收按键信息
 SendScreenShot::SendScreenShot(QString addr,QString port) {
     socket = new QTcpSocket();
@@ -246,6 +292,10 @@ SendScreenShot::SendScreenShot(QString addr,QString port) {
             event_state.keys_state = std::bitset<255>(keys_str);
 
             // 在此处接收时进行模拟
+            QCursor::setPos(x, y);
+            SimulateKeys(event_state.keys_state);
+
+
 
             arr.clear();
             total_size = 0;
